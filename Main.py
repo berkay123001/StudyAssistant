@@ -1,4 +1,8 @@
+from transformers.models.biogpt.convert_biogpt_original_pytorch_checkpoint_to_pytorch import Dictionary
+
+from QuizGenerator.Sozluk import Sozluk
 from SimpleQuizGenerator.Translator import TranslatorService
+from SimpleQuizGenerator.UserManager import UserManager
 from SimpleQuizGenerator.Voice_Recorder import VoiceRecorder
 
 
@@ -7,57 +11,96 @@ def ana_menu():
         print("\n--- Çeviri Menüsü ---")
         print("1. Sessiz Çeviri")
         print("2. Sesli Çeviri")
-        print("2. Çıkış")
+        print("3. Sözlük")
+        print("4. Çıkış")
 
-        secim = input("Bir seçenek seçin (1-2): ")
+        secim = input("Bir seçenek seçin (1-3): ")
 
         if secim == "1":
             kaynak_metin = input("Çevirmek istediğiniz metni girin: ")
             hedef_dil = input("Hedef dilin kodunu girin (ör. 'tr' için Türkçe, 'en' için İngilizce): ")
-            Translator = TranslatorService(kaynak_metin, hedef_dil)
-            ceviri = Translator.translate()
+            translator = TranslatorService(kaynak_metin, hedef_dil)
+            ceviri = translator.translate()
             print(f"Çeviri: {ceviri}")
 
         elif secim == "2":
+            kaynak_dil = int(input("Kaynak dil kodunu girin (1-Türkçe, 2-İngilizce): "))
 
-            kaynak_dil=int(input("Kaynak dil kodunu girin (1-tr,2-en)"))
-
-            if kaynak_dil==1:
-                hedef_dil = input("Hedef dilin kodunu girin (1-en) ")
-
+            if kaynak_dil == 1:
+                hedef_dil = input("Hedef dilin kodunu girin (1-en): ").strip()
                 if hedef_dil == "1":
-                    TryRecorder = VoiceRecorder()
-                    Tr_metin = TryRecorder.dinlemeyi_baslat_Tr()
-                    print(Tr_metin)
-                    Translator = TranslatorService(Tr_metin, "en")
-                    ceviri = Translator.translate()
+                    recorder = VoiceRecorder()
+                    tr_metin = recorder.dinlemeyi_baslat_Tr()
+                    print(tr_metin)
+                    translator = TranslatorService(tr_metin, "en")
+                    ceviri = translator.translate()
                     print(f"Çeviri: {ceviri}")
-
-                if hedef_dil == "2":
-                  pass
-
                 else:
-                    print("Lütfen geçerli bir kod giriniz")
+                    print("Lütfen geçerli bir kod giriniz.")
 
-            if kaynak_dil==2:
-                hedef_dil = input("Hedef dilin kodunu girin (1-Tr) ")
-
-                if hedef_dil=="1":
-                    TryRecorder = VoiceRecorder()
-                    En_metin = TryRecorder.dinlemeyi_baslat_En()
-                    print(En_metin)
-                    Translator = TranslatorService(En_metin, "tr")
-                    ceviri = Translator.translate()
+            elif kaynak_dil == 2:
+                hedef_dil = input("Hedef dilin kodunu girin (1-tr): ").strip()
+                if hedef_dil == "1":
+                    recorder = VoiceRecorder()
+                    en_metin = recorder.dinlemeyi_baslat_En()
+                    print(en_metin)
+                    translator = TranslatorService(en_metin, "tr")
+                    ceviri = translator.translate()
                     print(f"Çeviri: {ceviri}")
-
                 else:
-                    print("Lütfen geçerli bir kod giriniz")
+                    print("Lütfen geçerli bir kod giriniz.")
+            else:
+                print("Geçersiz kaynak dil kodu.")
 
 
-        elif secim == "3":
+        elif secim=="3":
+
+            kelime = input("Çevirmek istediğiniz kelimeyi giriniz: ")
+            sozluk = Sozluk(kelime)
+            sozluk.wordnet_lookup()
+
+        elif secim == "4":
             print("Çıkış yapılıyor...")
             break
 
+        else:
+            print("Geçersiz seçim. Lütfen tekrar deneyin.")
+
+
+def main_menu():
+    user_manager = UserManager()
+
+    while True:
+        print("\n--- Ana Menü ---")
+        print("1. Kullanıcı Kaydı")
+        print("2. Giriş Yap")
+        print("3. Çıkış")
+
+        choice = input("Seçiminizi yapın (1-3): ")
+
+        if choice == "1":
+            username = input("Kullanıcı adı: ").strip()
+            password = input("Şifre: ").strip()
+            success, message = user_manager.register_user(username, password)
+            print(message)
+
+        elif choice == "2":
+            username = input("Kullanıcı adı: ").strip()
+            password = input("Şifre: ").strip()
+            success, message = user_manager.login_user(username, password)
+            print(message)
+            if success:
+                print("Giriş başarılı! Çeviri menüsüne yönlendiriliyorsunuz...")
+                ana_menu()
+                break
+
+        elif choice == "3":
+            print("Çıkış yapılıyor...")
+            break
+
+        else:
+            print("Geçersiz seçim. Lütfen tekrar deneyin.")
+
 
 if __name__ == "__main__":
-    ana_menu()
+    main_menu()
