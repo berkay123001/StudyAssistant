@@ -1,12 +1,23 @@
-from transformers.models.biogpt.convert_biogpt_original_pytorch_checkpoint_to_pytorch import Dictionary
 
 from QuizGenerator.Sozluk import Sozluk
 from SimpleQuizGenerator.Translator import TranslatorService
 from SimpleQuizGenerator.UserManager import UserManager
 from SimpleQuizGenerator.Voice_Recorder import VoiceRecorder
+from SimpleQuizGenerator.Website import WebsiteConnection
 
 
-def ana_menu():
+def website_menu():
+    print("----------Websites-----------")
+    print("1-Wikipedia")
+    secim = input("İşlem seçiniz")
+    if secim == "1":
+        source = input("Lütfen aramak istediğiniz konuyu giriniz: ")
+        ConnectionWebsite = WebsiteConnection(source)
+        ozet=ConnectionWebsite.Wikipedia_Connection()
+        print(ozet)
+
+
+def Translate_Menu():
     while True:
         print("\n--- Çeviri Menüsü ---")
         print("1. Sessiz Çeviri")
@@ -90,9 +101,16 @@ def main_menu():
             success, message = user_manager.login_user(username, password)
             print(message)
             if success:
-                print("Giriş başarılı! Çeviri menüsüne yönlendiriliyorsunuz...")
-                ana_menu()
-                break
+                print("Hangi menüye geçmek istiyorsunuz?")
+                print("1-Çeviri")
+                print("2-Website")
+                secim=input("İşlem seçiniz")
+                if secim=="1":
+                    Translate_Menu()
+                    break
+                elif secim=="2":
+                    website_menu()
+                    break
 
         elif choice == "3":
             print("Çıkış yapılıyor...")
